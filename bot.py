@@ -36,7 +36,10 @@ ytdl_opts = {
     "quiet": True,
     "extract_flat": False,
     "default_search": "ytsearch",
+    "cookies": "cookies.txt",   # 🔥 THIS LINE FIXES THE ERROR
+    "source_address": "0.0.0.0"
 }
+
 ytdl = yt_dlp.YoutubeDL(ytdl_opts)
 
 
@@ -212,15 +215,17 @@ def play_next(vc: discord.VoiceClient, guild_id: int):
         # Autoplay: pick a random related song
         try:
             query = state.current["title"]
-            info = ytdl.extract_info(f"ytsearch:{query}", download=False)["entries"][0]
+            info = ytdl.extract_info(f"ytsearch:{query}", download=False)[
+                "entries"][0]
             track = {
                 "title": info["title"],
-                "url": info["url"],
+                "url": info["url"] if "url" in info else info["formats"][0]["url"],
                 "webpage": info.get("webpage_url", "https://youtube.com"),
                 "duration": info.get("duration", 0),
                 "uploader": info.get("uploader", "Unknown"),
-                "requester": state.current["requester"],
+                "requester": interaction.user,
             }
+
             state.current = track
         except:
             track = None
@@ -330,7 +335,7 @@ async def play(interaction: discord.Interaction, query: str):
         )
         embed.add_field(
             name="⏱ Duration",
-            value=f"{int(track['duration']//60)}m {int(track['duration']%60)}s",
+            value=f"{int(track['duration']//60)}m {int(track['duration'] % 60)}s",
             inline=True,
         )
         embed.add_field(name="✍ Author", value=track["uploader"], inline=True)
