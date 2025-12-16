@@ -1,4 +1,4 @@
 discord.py
-yt-dlp
-aiohttp
+PyNaCl
 python-dotenv
+yt-dlp
